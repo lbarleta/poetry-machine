@@ -1,18 +1,14 @@
+
 import tensorflow as tf
 import numpy as np
 import pickle, os
-from gpiozero import LED
 import time, threading
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+#printer = Adafruit_Thermal("/dev/serial0", 9600, timeout=1)
 
-def flashLed(e, pin_num):
-    led = LED(pin_num)
-    while not e.isSet():
-        led.on()
-        time.sleep(0.5)
-        led.off()
-        time.sleep(0.5)
+#def flashLed(e, ):
+
 
 def pick_word(probabilities, int_to_vocab):
     """
@@ -23,26 +19,19 @@ def pick_word(probabilities, int_to_vocab):
     """
     return np.random.choice(list(int_to_vocab.values()), 1, p=probabilities)[0]
 
-corpus_int, vocab_to_int, int_to_vocab, token_dict = pickle.load(open('model/preprocess.p', mode='rb'))
-seq_length, save_dir = pickle.load(open('model/params.p', mode='rb'))
+def generatePoem(money=25):
+    corpus_int, vocab_to_int, int_to_vocab, token_dict = pickle.load(open('model/preprocess.p', mode='rb'))
+    seq_length, save_dir = pickle.load(open('model/params.p', mode='rb'))
 
-save_dir = "model/"+save_dir
+    save_dir = "model/"+save_dir
 
-loaded_graph = tf.Graph()
+    loaded_graph = tf.Graph()
 
-# Set new_name to something other than 'quit'.
-money = ''
+    #e = threading.Event()
+    #t = threading.Thread(name='non-block', target=flashLed, args=(e, 18))
+    #t.start()
 
-# Start a loop that will run until the user enters 'quit'.
-while money != 'quit':
-    money = input("How much money did you enter? ")
-
-    
-    e = threading.Event()
-    t = threading.Thread(name='non-block', target=flashLed, args=(e, 18))
-    t.start()
-    
-    gen_length = 6*int(money)
+    gen_length = 10*int(money)
     prime_words = 'times'
 
     with tf.Session(graph=loaded_graph) as sess:
@@ -80,8 +69,6 @@ while money != 'quit':
         for key, token in token_dict.items():
             chapter_text = chapter_text.replace(' ' + token.lower(), key)
 
-    print("\n")
-    print(chapter_text)
-    print("\n\n\n")
-    
-    e.set()
+    return chapter_text
+
+#generatePoem(25)
